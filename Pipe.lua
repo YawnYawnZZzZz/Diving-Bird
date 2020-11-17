@@ -13,7 +13,7 @@ function Pipe:init(orientation, x)
     self.orientation = orientation
 end
 
-function Pipe:render()
+function Pipe:draw()
     -- love.graphics.draw( drawable, x, y, 
     --      orientation(radians), 
     --      sx, sy, <- scales

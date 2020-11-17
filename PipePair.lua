@@ -14,6 +14,8 @@ function PipePair:init(x)
         ['right'] = Pipe('right', self.x + PIPE_WIDTH + GAP_WIDTH)
     }
 
+    self.scored = false
+
     -- whether this pair is ready to be removed from the scene 
     self.remove = false
 end
@@ -28,9 +30,9 @@ function PipePair:update(dt)
     end
 end
 
-function PipePair:render()
+function PipePair:draw()
     for k, pipe in pairs(self.pipes) do
-        pipe:render()
+        pipe:draw()
     end
 end
 

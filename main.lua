@@ -7,6 +7,13 @@ require 'Bird'
 require 'Pipe'
 require 'PipePair'
 
+require 'StateMachine'
+require 'states/BaseState'
+require 'states/CountdownState'
+require 'states/PlayState'
+require 'states/ScoreState'
+require 'states/TitleScreenState'
+
 
 -- physical screen dimensions
 WINDOW_HEIGHT = 720
@@ -78,6 +85,15 @@ function love.load()
         resizable = true
     })
 
+    -- initialize state machine with all state-returning functions
+    gStateMachine = StateMachine {
+        ['title'] = function() return TitleScreenState() end,
+        ['countdown'] = function() return CountdownState() end,
+        ['play'] = function() return PlayState() end,
+        ['score'] = function() return ScoreState() end,
+    }
+    gStateMachine:change('title')
+
     -- initialize input table 
     keys_pressed = {}
 end
@@ -111,35 +127,10 @@ function love.update(dt)
     ground_scroll = (ground_scroll + GROUND_SCROLL_SPEED * dt)
         % VIRTUAL_HEIGHT
 
-    bird:update(dt)
+    gStateMachine:update(dt)
 
     -- reset input table
     keys_pressed = {}
-
-    -- spawn a new Pipe if the time is past 2 seconds
-    spawnTimer = spawnTimer + dt
-    if spawnTimer > 2 then
-        local x = math.max(20-PIPE_WIDTH, math.min(lastX + math.random(-20, 20), VIRTUAL_WIDTH - GAP_WIDTH - 20 - PIPE_WIDTH))
-        lastX = x
-
-        table.insert(pipes, PipePair(x))
-        spawnTimer = 0
-    end
-
-    -- for every pipe in the scene...
-    for k, pair in pairs(pipes) do
-        pair:update(dt)
-
-        for l, pipe in pairs(pair.pipes) do
-            if bird:collides(pipe) then
-                scrolling = false
-            end
-        end
-
-        if pair.remove then
-            table.remove(pipes, k)
-        end
-    end
 end
 
 -- Callback function used to draw on the screen every frame.
@@ -149,11 +140,7 @@ function love.draw()
     -- draw the background
     love.graphics.draw(background, 0, -background_scroll)
 
-    for k, pair in pairs(pipes) do
-        pair:render()
-    end
-
-    bird:render()
+    gStateMachine:draw()
 
     -- draw the ground on top of the background, towards the bottom of the screen
     love.graphics.draw(ground, 0, -ground_scroll)

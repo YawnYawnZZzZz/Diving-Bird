@@ -1,6 +1,6 @@
 Bird = Class{}
 
-function overlaps(leeway, xmin, ymin, xmax, ymax, amin, bmin, amax, bmax)
+function overlaps(xmin, ymin, xmax, ymax, amin, bmin, amax, bmax, leeway)
     leeway = leeway or 0
     return not (xmin + leeway > amax 
         or ymin + leeway > bmax 
@@ -20,20 +20,23 @@ function Bird:init()
 
 end
 
-function Bird:render()
+function Bird:draw()
     love.graphics.draw(self.image, self.x, self.y)
 end
 
 function Bird:update()
     if love.keyboard.wasPressed('left') or love.keyboard.isDown('left') then
+        sounds['jump']:play()
         self.x = self.x - 5
     elseif love.keyboard.wasPressed('right') or love.keyboard.isDown('right') then
+        sounds['jump']:play()
         self.x = self.x + 5
     end
 end
 
 function Bird:collides(pipe)
     -- 2: leeway with the collision
-    return overlaps(2, self.x, self.y, self.x + self.width, self.y + self.height,
-        pipe.x, pipe.y, pipe.x + PIPE_WIDTH, pipe.y + PIPE_HEIGHT)
+    return overlaps(self.x, self.y, self.x + self.width, self.y + self.height,
+        pipe.x, pipe.y, pipe.x + PIPE_WIDTH, pipe.y + PIPE_HEIGHT, 
+        2)
 end
